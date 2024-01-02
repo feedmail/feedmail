@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ template "title" . }}</title>
+    <link href="/static/css/bootstrap.min.{{ .CacheTag }}.css" rel="stylesheet">
+    <script type="importmap">
+      {
+        "imports": {
+          "@hotwired/turbo": "/static/js/turbo.es2017-umd.{{ .CacheTag }}.js",
+          "bootstrap": "/static/js/bootstrap.{{ .CacheTag }}.js",
+          "@popperjs/core": "/static/js/popper.{{ .CacheTag }}.js"
+        }
+      }
+    </script>
+    <!-- ES Module Shims: Import maps polyfill for modules browsers without import maps support (all except Chrome 89+) -->
+    <script async src="/static/js/es-module-shims.min.{{ .CacheTag }}.js" crossorigin="anonymous"></script>
+    <script type="module">
+      import hotwiredTurbo from '@hotwired/turbo';
+    </script>
+  </head>
+    {{ template "body" . }}
+  </body>
+</html>

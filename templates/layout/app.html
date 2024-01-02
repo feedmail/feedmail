@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ .Csrf }}">
+    <title>{{ template "title" . }}</title>
+    <link href="/static/css/bootstrap.min.{{ .CacheTag }}.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-icons.{{ .CacheTag }}.css" rel="stylesheet">
+    <script type="importmap">
+      {
+        "imports": {
+          "@hotwired/turbo": "/static/js/turbo.es2017-umd.{{ .CacheTag }}.js",
+          "@hotwired/stimulus": "/static/js/stimulus.umd.{{ .CacheTag }}.js",
+          "bootstrap": "/static/js/bootstrap.{{ .CacheTag }}.js",
+          "@popperjs/core": "/static/js/popper.{{ .CacheTag }}.js"
+        }
+      }
+    </script>
+    <!-- ES Module Shims: Import maps polyfill for modules browsers without import maps support (all except Chrome 89+) -->
+    <script async src="/static/js/es-module-shims.min.{{ .CacheTag }}.js" crossorigin="anonymous"></script>
+    <script type="module">
+      import hotwiredTurbo from '@hotwired/turbo';
+      // import { Application, Controller } from "@hotwired/stimulus";
+      // window.Stimulus = Application.start();
+  
+      // Stimulus.register("nav", class extends Controller {
+      //   static targets = [ "name" ]
+  
+      //   connect() {
+      //     console.log("Hello, Stimulus!", this.element);
+      //   }
+      //   greet() {
+      //     const element = this.nameTarget;
+      //     console.log(element)
+      //     const name = element.value;
+      //     console.log(name)
+      //     console.log(`Hello, ${name}!`);
+      //   }
+      // })
+
+      document.addEventListener("turbo:click", function(event) {
+        const tabs = document.getElementsByClassName("nav-marker");
+        for (var i = 0; i < tabs.length; i++) {
+          if (tabs[i] === event.target) {
+              tabs[i].className = "nav-marker nav-link active";
+            } else {
+              tabs[i].className = "nav-marker nav-link link-body-emphasis";
+            }
+        }
+      })
+    </script>
+  </head>
+  <body>
+    
+    <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="#">Feedmail</a>
+    
+    <ul class="navbar-nav flex-row d-md-none">
+      <li class="nav-item text-nowrap">
+        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSearch" aria-controls="navbarSearch" aria-expanded="false" aria-label="Toggle search">
+          <svg class="bi"><use xlink:href="#search"/></svg>
+        </button>
+      </li>
+      <li class="nav-item text-nowrap">
+        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <svg class="bi"><use xlink:href="#list"/></svg>
+        </button>
+      </li>
+    </ul>
+    
+    <div id="navbarSearch" class="navbar-search w-100 collapse">
+      <input class="form-control w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search">
+    </div>
+    </header>
+    
+    <div class="container-fluid">
+    <div class="row">
+      <div class="sidebar border border-right col-md-3 col-lg-2 p-0 bg-body-tertiary">
+        <div class="offcanvas-md offcanvas-end bg-body-tertiary" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarMenuLabel">Company name</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
+          </div>
+          <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary">
+            
+            <ul class="nav nav-pills flex-column mb-auto">
+              <li class="nav-item">
+                  <a href="/" data-turbo-frame="main" data-turbo-action="replace" class='nav-marker nav-link {{if eq .Handler "inbox" }}active{{else}}link-body-emphasis{{end}}' aria-current="page">
+                  Inbox
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="/starred" data-turbo-frame="main" data-turbo-action="replace" class='nav-marker nav-link {{if eq .Handler "starred" }}active{{else}}link-body-emphasis{{end}}'>
+                  Starred
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="/sent" data-turbo-frame="main" data-turbo-action="replace" class='nav-marker nav-link {{if eq .Handler "sent" }}active{{else}}link-body-emphasis{{end}}'>
+                  Sent
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a href="/trash" data-turbo-frame="main" data-turbo-action="replace" class='nav-marker nav-link {{if eq .Handler "trash" }}active{{else}}link-body-emphasis{{end}}'>
+                  Trash
+                  </a>
+              </li>
+            </ul>
+    
+            <hr class="my-3">
+    
+            <ul class="nav flex-column mb-auto">
+              <li class="nav-item">
+                <a class="nav-link d-flex align-items-center gap-2" href="/settings">
+                  Settings
+                </a>
+              </li>
+              <li class="nav-item">
+                <form action="/sign-out" method="post">
+                  <button type="submit" class="nav-link d-flex align-items-center gap-2">
+                    Sign out
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        {{ template "main" . }}
+      </main>
+        
+    </div>
+    </div>
+  </body>
+</html>
