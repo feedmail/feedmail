@@ -24,6 +24,13 @@ type actor struct {
 	PreferredUsername string   `json:"preferredUsername,omitempty"`
 	Name              string   `json:"name,omitempty"`
 	Summary           string   `json:"summary,omitempty"`
+	PublicKey         publicKey
+}
+
+type publicKey struct {
+	Id           string `json:"id,omitempty"`
+	Owner        string `json:"owner,omitempty"`
+	PublicKeyPem string `json:"publicKeyPem,omitempty"`
 }
 
 func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
@@ -44,7 +51,7 @@ func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	var user M.User
-	res := c.DB.Client.Where("username = ?", strings.ToLower(username)).Find(&user)
+	res := c.DB.Client.Where("username = ?", strings.ToLower(username)).Preload("Account").Find(&user)
 	if res.Error != nil || res.RowsAffected == 0 {
 		return app.RespondStatus(w, http.StatusNotFound)
 	}
@@ -65,5 +72,10 @@ func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		PreferredUsername: username,
 		Name:              username,
 		Summary:           "",
+		PublicKey: publicKey{
+			Id:           path.Join(id, "#main-key"),
+			Owner:        id,
+			PublicKeyPem: user.Account.PublicKey,
+		},
 	})
 }

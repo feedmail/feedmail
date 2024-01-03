@@ -1,10 +1,15 @@
 package user
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"log"
 	"net/http"
 	"net/mail"
+	"path"
 	"strings"
 	"time"
 
@@ -56,7 +61,6 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 
 	res := c.DB.Client.Where("email = ?", strings.ToLower(email)).Find(&M.User{})
 	if res.RowsAffected == 1 && strings.ToLower(email) == user.Email {
-		//return app.RespondError(errors.New("email is already taken"))
 		return c.RespondErr(w, r, "shared", "email is already taken")
 	}
 
@@ -70,14 +74,64 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	result := c.DB.Client.Create(&user)
-	if result.Error != nil {
-		//return app.RespondError(result.Error)
+	userResult := c.DB.Client.Create(&user)
+	if userResult.Error != nil {
+		log.Print(userResult.Error)
 		return c.RespondErr(w, r, "shared", "can not create user")
 	}
 
-	// app.DB.Client.Model(&account).Association("Users").Append([]*S.User{user})
-	// error handling?
+	privKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		log.Print("can not generate rsa key")
+		return c.RespondErr(w, r, "shared", "can not create user")
+	}
+
+	privKeyBytes := x509.MarshalPKCS1PrivateKey(privKey)
+	privKeyPem := pem.EncodeToMemory(
+		&pem.Block{
+			Type:  "RSA PRIVATE KEY",
+			Bytes: privKeyBytes,
+		},
+	)
+
+	pubKeyBytes, err := x509.MarshalPKIXPublicKey(&privKey.PublicKey)
+	if err != nil {
+		log.Print("can not marshal public key")
+		return c.RespondErr(w, r, "shared", "can not create user")
+	}
+	pubKeyPem := pem.EncodeToMemory(
+		&pem.Block{
+			Type:  "RSA PUBLIC KEY",
+			Bytes: pubKeyBytes,
+		},
+	)
+
+	id := fmt.Sprintf("https://%s/users/%s", *c.Domain, username)
+	accountID := uuid.New()
+	account := &M.Account{
+		ID:             accountID,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+		UserID:         user.ID,
+		Username:       username,
+		Domain:         *c.Domain,
+		PublicKey:      string(pubKeyPem),
+		PrivateKey:     string(privKeyPem),
+		DisplayName:    username,
+		Uri:            "",
+		Url:            fmt.Sprintf("https://%s/@%s", *c.Domain, username),
+		InboxUrl:       path.Join(id, "inbox"),
+		OutboxUrl:      path.Join(id, "outbox"),
+		FollowersUrl:   path.Join(id, "followers"),
+		SharedInboxUrl: fmt.Sprintf("https://%s/inbox", *c.Domain),
+		ActorType:      "Person",
+	}
+	accountResult := c.DB.Client.Create(&account)
+	if accountResult.Error != nil {
+		log.Print(accountResult.Error)
+		//rollback user creation
+		return c.RespondErr(w, r, "shared", "can not create session")
+	}
 
 	sessionID := uuid.New()
 	session := &M.Session{
@@ -85,9 +139,10 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		UserID:       user.ID,
 		LastActivity: time.Now(),
 	}
-	result = c.DB.Client.Create(&session)
-	if result.Error != nil {
-		//return app.RespondError(result.Error)
+	sessionResult := c.DB.Client.Create(&session)
+	if sessionResult.Error != nil {
+		log.Print(sessionResult.Error)
+		//rollback user and account creation
 		return c.RespondErr(w, r, "shared", "can not create session")
 	}
 

@@ -3,12 +3,9 @@ package main
 import (
 	"github.com/feedmail/feedmail/app"
 	"github.com/feedmail/feedmail/handlers/api/activitypub"
-	"github.com/feedmail/feedmail/handlers/inbox"
-	"github.com/feedmail/feedmail/handlers/sent"
+	"github.com/feedmail/feedmail/handlers/mailbox"
 	"github.com/feedmail/feedmail/handlers/session"
 	"github.com/feedmail/feedmail/handlers/settings"
-	"github.com/feedmail/feedmail/handlers/starred"
-	"github.com/feedmail/feedmail/handlers/trash"
 	"github.com/feedmail/feedmail/handlers/user"
 )
 
@@ -26,19 +23,19 @@ func InitRoutes(c *app.Config) {
 
 	// Auth handlers
 	c.Router.Handle("/", app.Auth{Config: c, R: map[string]any{
-		"GET": inbox.Index,
+		"GET": mailbox.Inbox,
 	}})
 
 	c.Router.Handle("/starred", app.Auth{Config: c, R: map[string]any{
-		"GET": starred.Index,
+		"GET": mailbox.Starred,
 	}})
 
 	c.Router.Handle("/sent", app.Auth{Config: c, R: map[string]any{
-		"GET": sent.Index,
+		"GET": mailbox.Sent,
 	}})
 
 	c.Router.Handle("/trash", app.Auth{Config: c, R: map[string]any{
-		"GET": trash.Index,
+		"GET": mailbox.Trash,
 	}})
 
 	c.Router.Handle("/sign-out", app.Auth{Config: c, R: map[string]any{

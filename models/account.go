@@ -12,7 +12,7 @@ type Account struct {
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      gorm.DeletedAt
-	UserID         uint
+	UserID         uuid.UUID
 	Username       string
 	Domain         string
 	PublicKey      string
