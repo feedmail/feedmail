@@ -52,86 +52,92 @@
     </script>
   </head>
   <body>
-    
-    <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
-    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="#">Feedmail</a>
-    
-    <ul class="navbar-nav flex-row d-md-none">
-      <li class="nav-item text-nowrap">
-        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSearch" aria-controls="navbarSearch" aria-expanded="false" aria-label="Toggle search">
-          <svg class="bi"><use xlink:href="#search"/></svg>
-        </button>
-      </li>
-      <li class="nav-item text-nowrap">
-        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-          <svg class="bi"><use xlink:href="#list"/></svg>
-        </button>
-      </li>
-    </ul>
-    
-    <div id="navbarSearch" class="navbar-search w-100 collapse">
-      <input class="form-control w-100 rounded-0 border-0" type="text" placeholder="Search" aria-label="Search">
-    </div>
-    </header>
-    
-    <div class="container-fluid">
-    <div class="row">
-      <div class="sidebar border border-right col-md-3 col-lg-2 p-0 bg-body-tertiary">
-        <div class="offcanvas-md offcanvas-end bg-body-tertiary" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
-          <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="sidebarMenuLabel">Company name</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
+
+    <header class="py-3 mb-3 border-bottom">
+      <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 5rem 1fr 4fr;">
+        <div></div>
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center col-lg-4 mb-2 mb-lg-0 link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+          </a>
+          <ul class="dropdown-menu text-small shadow">
+            <li><a class="dropdown-item active" href="#" aria-current="page">Overview</a></li>
+            <li><a class="dropdown-item" href="#">Inventory</a></li>
+            <li><a class="dropdown-item" href="#">Customers</a></li>
+            <li><a class="dropdown-item" href="#">Products</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Reports</a></li>
+            <li><a class="dropdown-item" href="#">Analytics</a></li>
+          </ul>
+        </div>
+  
+        <div class="d-flex align-items-center">
+          <div class="pr-3">
+            <button class="btn btn-outline-primary rounded-pill px-3" type="button">Compose</button>
           </div>
-          <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary">
-            
-            <ul class="nav nav-pills flex-column mb-auto">
-              <li class="nav-item">
-                  <a href="/" data-turbo-frame="main" data-turbo-action="replace" class='nav-marker nav-link {{if eq .Handler "inbox" }}active{{else}}link-body-emphasis{{end}}' aria-current="page">
-                  Inbox
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a href="/starred" data-turbo-frame="main" data-turbo-action="replace" class='nav-marker nav-link {{if eq .Handler "starred" }}active{{else}}link-body-emphasis{{end}}'>
-                  Starred
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a href="/sent" data-turbo-frame="main" data-turbo-action="replace" class='nav-marker nav-link {{if eq .Handler "sent" }}active{{else}}link-body-emphasis{{end}}'>
-                  Sent
-                  </a>
-              </li>
-              <li class="nav-item">
-                  <a href="/trash" data-turbo-frame="main" data-turbo-action="replace" class='nav-marker nav-link {{if eq .Handler "trash" }}active{{else}}link-body-emphasis{{end}}'>
-                  Trash
-                  </a>
-              </li>
-            </ul>
-    
-            <hr class="my-3">
-    
-            <ul class="nav flex-column mb-auto">
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center gap-2" href="/settings">
-                  Settings
-                </a>
-              </li>
-              <li class="nav-item">
-                <form action="/sign-out" method="post">
-                  <button type="submit" class="nav-link d-flex align-items-center gap-2">
-                    Sign out
-                  </button>
-                </form>
-              </li>
+          <form class="w-100 mr-3" role="search">
+            <input type="search" class="form-control w-25 mx-3" placeholder="Search..." aria-label="Search">
+          </form>
+  
+          <div class="flex-shrink-0 dropdown">
+            <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+            </a>
+            <ul class="dropdown-menu text-small shadow">
+              <li><a class="dropdown-item" href="#">New project...</a></li>
+              <li><a class="dropdown-item" href="#">Settings</a></li>
+              <li><a class="dropdown-item" href="#">Profile</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#">Sign out</a></li>
             </ul>
           </div>
         </div>
       </div>
+    </header>
+
+    <div class="container-fluid pb-3">
+      <div class="d-grid gap-3" style="grid-template-columns: 5rem 1fr 4fr;">
+
+
+        <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 5rem;">
+          <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
+            <li class="nav-item">
+              <a href="/" class='nav-link {{if eq .Handler "inbox" }}active{{end}} py-3 border-bottom rounded-0' aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Home" data-bs-original-title="Home">
+                <img src="/static/icons/inbox.{{ .CacheTag }}.svg" alt="inbox" width="24" height="24">
+                <small>Inbox</small>
+              </a>
+            </li>
+            <li>
+              <a href="/starred" class='nav-link {{if eq .Handler "starred" }}active{{end}} py-3 border-bottom rounded-0' data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Dashboard" data-bs-original-title="Dashboard">
+                <img src="/static/icons/star.{{ .CacheTag }}.svg" alt="starred" width="24" height="24">
+                <small>Starred</small>
+              </a>
+            </li>
+            <li>
+              <a href="/sent" class='nav-link {{if eq .Handler "sent" }}active{{end}} py-3 border-bottom rounded-0' data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Orders" data-bs-original-title="Orders">
+                <img src="/static/icons/cursor.{{ .CacheTag }}.svg" alt="sent" width="24" height="24">
+                <small>Sent</small>
+              </a>
+            </li>
+            <li>
+              <a href="/trash" class='nav-link {{if eq .Handler "trash" }}active{{end}} py-3 border-bottom rounded-0' data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Products" data-bs-original-title="Products">
+                <img src="/static/icons/trash3.{{ .CacheTag }}.svg" alt="trash" width="24" height="24">
+                <small>Trash</small>
+              </a>
+            </li>
+          </ul>
+        </div>
+  
+          <div>
+            {{ template "main" . }}
+          </div>
+
+          <div>
+            Message
+          </div>
+
+      </div>
+    </div>
     
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        {{ template "main" . }}
-      </main>
-        
-    </div>
-    </div>
   </body>
 </html>
