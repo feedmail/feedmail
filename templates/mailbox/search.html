@@ -1,0 +1,12 @@
+<turbo-stream action="replace" target="main">
+  <template>
+    <turbo-frame id="main">
+      <a href="#" class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+        <img src="{{ .Data.Icon.Url }}" alt="" width="32" height="32" class="rounded-circle me-2">
+        <strong>{{ .Data.Name }}</strong>
+       
+      </a>
+      <p>{{ .Data.Summary }}</p>
+    </turbo-frame>
+  </template>
+</turbo-stream>

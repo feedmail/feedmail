@@ -20,6 +20,10 @@ type Tmpl struct {
 	Data     any
 	CacheTag *string
 	Csrf     string
+	// Turbo Streams
+	Action  string
+	Target  string // targeting one element
+	Targets string // targeting multiple elements
 }
 
 func (c *Config) InitTemplate(custom Tmpl, r *http.Request) Tmpl {
@@ -148,18 +152,29 @@ func (c *Config) Respond(w http.ResponseWriter, r *http.Request, t Tmpl) error {
 		return RespondError(fmt.Errorf("handler or func missing"))
 	}
 
-	var err error
-	tmplFile, _ := template.ParseFiles(fmt.Sprintf("templates/%s.%s", t.Layout, t.Format), fmt.Sprintf("templates/%s/%s.%s", t.Handler, t.Fn, t.Format))
-	if t.Partial {
-		tmplFile, _ = template.ParseFiles(fmt.Sprintf("templates/%s/%s.%s", t.Handler, t.Fn, t.Format))
+	tmplFile, err := template.ParseFiles(fmt.Sprintf("templates/%s/%s.%s", t.Handler, t.Fn, t.Format))
+	if err != nil {
+		return RespondError(fmt.Errorf("can't parse template"))
+	}
+
+	switch true {
+	case t.Partial:
 		err = tmplFile.Execute(w, t)
-	} else if len(r.Header.Get("Turbo-Frame")) > 0 {
-		log.Printf("Partial or Turbo-Frame: %s\n", r.Header.Get("Turbo-Frame"))
-		tmplFile, _ = template.ParseFiles(fmt.Sprintf("templates/%s/%s.%s", t.Handler, t.Fn, t.Format))
+	case len(r.Header.Get("Turbo-Frame")) > 0:
+		log.Printf("Turbo-Frame: %s\n", r.Header.Get("Turbo-Frame"))
 		err = tmplFile.ExecuteTemplate(w, string(r.Header.Get("Turbo-Frame")), t)
-	} else {
+	case strings.Contains(r.Header.Get("Accept"), "text/vnd.turbo-stream.html"):
+		log.Print("Turbo-Stream: true")
+		w.Header().Set("Content-Type", "text/vnd.turbo-stream.html")
+		err = tmplFile.Execute(w, t)
+	default:
+		tmplFile, err = template.ParseFiles(fmt.Sprintf("templates/%s.%s", t.Layout, t.Format), fmt.Sprintf("templates/%s/%s.%s", t.Handler, t.Fn, t.Format))
+		if err != nil {
+			return RespondError(fmt.Errorf("can't parse template"))
+		}
 		err = tmplFile.Execute(w, t)
 	}
+
 	if err != nil {
 		return RespondError(fmt.Errorf("can not parse template: %s", err.Error()))
 	}

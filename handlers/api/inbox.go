@@ -1,4 +1,4 @@
-package activitypub
+package api
 
 import (
 	"log"
@@ -8,7 +8,7 @@ import (
 )
 
 func Inbox(c *app.Config, w http.ResponseWriter, r *http.Request) error {
-	log.Printf("activitypub#inbox %v", r.URL)
+	log.Printf("api#inbox %v", r.URL)
 
 	return app.RespondStatus(w, http.StatusOK)
 }

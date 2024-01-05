@@ -1,4 +1,4 @@
-package activitypub
+package api
 
 import (
 	"fmt"
@@ -6,25 +6,13 @@ import (
 	"net/http"
 	"strings"
 
+	AP "github.com/feedmail/feedmail/activitypub"
 	"github.com/feedmail/feedmail/app"
 	M "github.com/feedmail/feedmail/models"
 )
 
-type webfinger struct {
-	Subject string   `json:"subject,omitempty"`
-	Aliases []string `json:"aliases,omitempty"`
-	Links   []link   `json:"links,omitempty"`
-}
-
-type link struct {
-	Rel      string `json:"rel,omitempty"`
-	Type     string `json:"type,omitempty"`
-	Href     string `json:"href,omitempty"`
-	Template string `json:"template,omitempty"`
-}
-
 func Webfinger(c *app.Config, w http.ResponseWriter, r *http.Request) error {
-	log.Printf("activitypub#webfinger %v", r.URL)
+	log.Printf("api#webfinger %v", r.URL)
 
 	resource := r.URL.Query().Get("resource")
 
@@ -45,13 +33,13 @@ func Webfinger(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		return app.RespondStatus(w, http.StatusNotFound)
 	}
 
-	resp := webfinger{
+	resp := AP.Webfinger{
 		Subject: resource,
 		Aliases: []string{
 			fmt.Sprintf("https://%s/@%s", *c.Domain, user.Username),
 			fmt.Sprintf("https://%s/users/%s", *c.Domain, user.Username),
 		},
-		Links: []link{
+		Links: []AP.Link{
 			{Rel: "http://webfinger.net/rel/profile-page", Type: "text/html", Href: fmt.Sprintf("https://%s/@%s", *c.Domain, user.Username)},
 			{Rel: "self", Type: "application/activity+json", Href: fmt.Sprintf("https://%s/users/%s", *c.Domain, user.Username)},
 			{Rel: "http://ostatus.org/schema/1.0/subscribe", Template: fmt.Sprintf("https://%s/authorize_interaction?uri={uri}", *c.Domain)},

@@ -1,4 +1,4 @@
-package activitypub
+package api
 
 import (
 	"fmt"
@@ -8,33 +8,14 @@ import (
 	"slices"
 	"strings"
 
+	AP "github.com/feedmail/feedmail/activitypub"
 	"github.com/feedmail/feedmail/app"
 	"github.com/feedmail/feedmail/handlers/user"
 	M "github.com/feedmail/feedmail/models"
 )
 
-type actor struct {
-	Context           []string `json:"@context,omitempty"`
-	Id                string   `json:"id,omitempty"`
-	Type              string   `json:"type,omitempty"`
-	Following         string   `json:"following,omitempty"`
-	Followers         string   `json:"followers,omitempty"`
-	Inbox             string   `json:"inbox,omitempty"`
-	Outbox            string   `json:"outbox,omitempty"`
-	PreferredUsername string   `json:"preferredUsername,omitempty"`
-	Name              string   `json:"name,omitempty"`
-	Summary           string   `json:"summary,omitempty"`
-	PublicKey         publicKey
-}
-
-type publicKey struct {
-	Id           string `json:"id,omitempty"`
-	Owner        string `json:"owner,omitempty"`
-	PublicKeyPem string `json:"publicKeyPem,omitempty"`
-}
-
 func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
-	log.Printf("activitypub#actor %v", r.URL)
+	log.Printf("api#actor %v", r.URL)
 
 	headers := []string{
 		"application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"",
@@ -58,7 +39,7 @@ func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 
 	id := fmt.Sprintf("https://%s/users/%s", *c.Domain, username)
 
-	return app.RespondJSON(w, http.StatusOK, actor{
+	return app.RespondJSON(w, http.StatusOK, AP.Actor{
 		Context: []string{
 			"https://www.w3.org/ns/activitystreams",
 			"https://w3id.org/security/v1",
@@ -72,7 +53,7 @@ func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		PreferredUsername: username,
 		Name:              username,
 		Summary:           "",
-		PublicKey: publicKey{
+		PublicKey: AP.PublicKey{
 			Id:           path.Join(id, "#main-key"),
 			Owner:        id,
 			PublicKeyPem: user.Account.PublicKey,

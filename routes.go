@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/feedmail/feedmail/app"
-	"github.com/feedmail/feedmail/handlers/api/activitypub"
+	"github.com/feedmail/feedmail/handlers/api"
 	"github.com/feedmail/feedmail/handlers/mailbox"
 	"github.com/feedmail/feedmail/handlers/session"
 	"github.com/feedmail/feedmail/handlers/settings"
@@ -23,6 +23,10 @@ func InitRoutes(c *app.Config) {
 
 	// Auth handlers
 	c.Router.Handle("/", app.Auth{Config: c, R: map[string]any{
+		"GET": user.Home,
+	}})
+
+	c.Router.Handle("/inbox", app.Auth{Config: c, R: map[string]any{
 		"GET": mailbox.Inbox,
 	}})
 
@@ -36,6 +40,10 @@ func InitRoutes(c *app.Config) {
 
 	c.Router.Handle("/trash", app.Auth{Config: c, R: map[string]any{
 		"GET": mailbox.Trash,
+	}})
+
+	c.Router.Handle("/search", app.Auth{Config: c, R: map[string]any{
+		"POST": mailbox.Search,
 	}})
 
 	c.Router.Handle("/sign-out", app.Auth{Config: c, R: map[string]any{
@@ -53,18 +61,18 @@ func InitRoutes(c *app.Config) {
 
 	// API handlers
 	c.Router.Handle("/.well-known/webfinger", app.API{Config: c, R: map[string]any{
-		"GET": activitypub.Webfinger,
+		"GET": api.Webfinger,
 	}})
 
 	c.Router.Handle("/users/{username}", app.API{Config: c, R: map[string]any{
-		"GET": activitypub.Actor,
+		"GET": api.Actor,
 	}})
 
 	c.Router.Handle("/users/{username}/inbox", app.API{Config: c, R: map[string]any{
-		"GET": activitypub.Inbox,
+		"GET": api.Inbox,
 	}})
 
 	c.Router.Handle("/users/{username}/outbox", app.API{Config: c, R: map[string]any{
-		"GET": activitypub.Outbox,
+		"GET": api.Outbox,
 	}})
 }

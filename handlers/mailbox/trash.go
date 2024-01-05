@@ -10,5 +10,5 @@ import (
 func Trash(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 	log.Printf("mailbox#trash %v", r.URL)
 
-	return c.Respond(w, r, app.Tmpl{Handler: "trash", Fn: "index"})
+	return c.Respond(w, r, app.Tmpl{Handler: "mailbox", Fn: "trash"})
 }
