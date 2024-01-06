@@ -1,19 +1,19 @@
 package activitypub
 
 type Actor struct {
-	Context           []string `json:"@context,omitempty"`
-	Id                string   `json:"id,omitempty"`
-	Type              string   `json:"type,omitempty"`
-	Following         string   `json:"following,omitempty"`
-	Followers         string   `json:"followers,omitempty"`
-	Inbox             string   `json:"inbox,omitempty"`
-	Outbox            string   `json:"outbox,omitempty"`
-	PreferredUsername string   `json:"preferredUsername,omitempty"`
-	Name              string   `json:"name,omitempty"`
-	Summary           string   `json:"summary,omitempty"`
-	Icon              Icon     `json:"icon"`
-	Url               string   `json:"url,omitempty"`
-	PublicKey         PublicKey
+	Context           []string  `json:"@context,omitempty"`
+	Id                string    `json:"id,omitempty"`
+	Type              string    `json:"type,omitempty"`
+	Following         string    `json:"following,omitempty"`
+	Followers         string    `json:"followers,omitempty"`
+	Inbox             string    `json:"inbox,omitempty"`
+	Outbox            string    `json:"outbox,omitempty"`
+	PreferredUsername string    `json:"preferredUsername,omitempty"`
+	Name              string    `json:"name,omitempty"`
+	Summary           string    `json:"summary,omitempty"`
+	Icon              Icon      `json:"icon"`
+	Url               string    `json:"url,omitempty"`
+	PublicKey         PublicKey `json:"publicKey,omitempty"`
 	Endpoints         Endpoints `json:"endpoints"`
 }
 
@@ -31,19 +31,6 @@ type PublicKey struct {
 	Id           string `json:"id,omitempty"`
 	Owner        string `json:"owner,omitempty"`
 	PublicKeyPem string `json:"publicKeyPem,omitempty"`
-}
-
-type Webfinger struct {
-	Subject string   `json:"subject,omitempty"`
-	Aliases []string `json:"aliases,omitempty"`
-	Links   []Link   `json:"links,omitempty"`
-}
-
-type Link struct {
-	Rel      string `json:"rel,omitempty"`
-	Type     string `json:"type,omitempty"`
-	Href     string `json:"href,omitempty"`
-	Template string `json:"template,omitempty"`
 }
 
 type Outbox struct {

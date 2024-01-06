@@ -18,6 +18,7 @@ func main() {
 	app.CsrfSecret = flag.String("csrf-secret", "xyz", "csrf-secret")
 	app.CacheTag = flag.String("cache-tag", "123", "cache-tag")
 	app.Domain = flag.String("domain", "localhost", "domain")
+	flag.Parse()
 
 	// Database
 	db, err := gorm.Open(sqlite.Open("db/dev.db"), &gorm.Config{})

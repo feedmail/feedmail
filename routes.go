@@ -75,4 +75,12 @@ func InitRoutes(c *app.Config) {
 	c.Router.Handle("/users/{username}/outbox", app.API{Config: c, R: map[string]any{
 		"GET": api.Outbox,
 	}})
+
+	c.Router.Handle("/.well-known/nodeinfo", app.API{Config: c, R: map[string]any{
+		"GET": api.Nodefinger,
+	}})
+
+	c.Router.Handle("/nodeinfo/2.0", app.API{Config: c, R: map[string]any{
+		"GET": api.Nodeinfo,
+	}})
 }

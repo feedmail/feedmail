@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"net/mail"
-	"path"
 	"strings"
 	"time"
 
@@ -120,9 +119,9 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		DisplayName:    username,
 		Uri:            "",
 		Url:            fmt.Sprintf("https://%s/@%s", *c.Domain, username),
-		InboxUrl:       path.Join(id, "inbox"),
-		OutboxUrl:      path.Join(id, "outbox"),
-		FollowersUrl:   path.Join(id, "followers"),
+		InboxUrl:       id + "/inbox",
+		OutboxUrl:      id + "/outbox",
+		FollowersUrl:   id + "/followers",
 		SharedInboxUrl: fmt.Sprintf("https://%s/inbox", *c.Domain),
 		ActorType:      "Person",
 	}

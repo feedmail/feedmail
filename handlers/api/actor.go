@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"path"
 	"slices"
 	"strings"
 
@@ -19,8 +18,11 @@ func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 
 	headers := []string{
 		"application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"",
+		"application/activity+json, application/ld+json",
 		"application/activity+json",
 	}
+
+	log.Printf(r.Header.Get("accept"))
 
 	if !slices.Contains(headers, r.Header.Get("accept")) {
 		return user.Profile(c, w, r) // redirect to user profile
@@ -38,7 +40,6 @@ func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 	}
 
 	id := fmt.Sprintf("https://%s/users/%s", *c.Domain, username)
-
 	return app.RespondJSON(w, http.StatusOK, AP.Actor{
 		Context: []string{
 			"https://www.w3.org/ns/activitystreams",
@@ -46,15 +47,15 @@ func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		},
 		Id:                id,
 		Type:              "Person",
-		Following:         path.Join(id, "following"),
-		Followers:         path.Join(id, "followers"),
-		Inbox:             path.Join(id, "inbox"),
-		Outbox:            path.Join(id, "outbox"),
+		Following:         id + "/following",
+		Followers:         id + "/followers",
+		Inbox:             id + "/inbox",
+		Outbox:            id + "/outbox",
 		PreferredUsername: username,
 		Name:              username,
 		Summary:           "",
 		PublicKey: AP.PublicKey{
-			Id:           path.Join(id, "#main-key"),
+			Id:           id + "#main-key",
 			Owner:        id,
 			PublicKeyPem: user.Account.PublicKey,
 		},
