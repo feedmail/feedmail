@@ -160,9 +160,7 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		HttpOnly: true,
 	})
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
-
-	return nil
+	return c.Redirect(w, r, "/")
 }
 
 func Update(c *app.Config, w http.ResponseWriter, r *http.Request) error {

@@ -7,22 +7,23 @@
     <title>{{ template "title" . }}</title>
     <link href="/static/css/bootstrap.min.{{ .CacheTag }}.css" rel="stylesheet">
     <link href="/static/css/bootstrap-icons.{{ .CacheTag }}.css" rel="stylesheet">
+    <!-- ES Module Shims: Import maps polyfill for modules browsers without import maps support (all except Chrome 89+) -->
+    <script async src="/static/js/es-module-shims.min.{{ .CacheTag }}.js" crossorigin="anonymous"></script>
     <script type="importmap">
       {
         "imports": {
+          "@popperjs/core": "/static/js/popper.{{ .CacheTag }}.js",
+          "bootstrap": "/static/js/bootstrap.esm.min.{{ .CacheTag }}.js",
           "@hotwired/turbo": "/static/js/turbo.es2017-umd.{{ .CacheTag }}.js",
-          "@hotwired/stimulus": "/static/js/stimulus.umd.{{ .CacheTag }}.js",
-          "bootstrap": "/static/js/bootstrap.{{ .CacheTag }}.js",
-          "@popperjs/core": "/static/js/popper.{{ .CacheTag }}.js"
+          "@hotwired/stimulus": "/static/js/stimulus.umd.{{ .CacheTag }}.js"
         }
       }
     </script>
-    <!-- ES Module Shims: Import maps polyfill for modules browsers without import maps support (all except Chrome 89+) -->
-    <script async src="/static/js/es-module-shims.min.{{ .CacheTag }}.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <script type="module">
         import hotwiredTurbo from '@hotwired/turbo';
+        import * as bootstrap from 'bootstrap';
         // import { Application, Controller } from "@hotwired/stimulus";
         // window.Stimulus = Application.start();
 
@@ -56,21 +57,7 @@
     <header class="py-3 mb-3 border-bottom">
       <div class="container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 5rem 1fr 4fr;">
         <div></div>
-        <div class="dropdown">
-          <a href="#" class="d-flex align-items-center col-lg-4 mb-2 mb-lg-0 link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
-          </a>
-          <ul class="dropdown-menu text-small shadow">
-            <li><a class="dropdown-item active" href="#" aria-current="page">Overview</a></li>
-            <li><a class="dropdown-item" href="#">Inventory</a></li>
-            <li><a class="dropdown-item" href="#">Customers</a></li>
-            <li><a class="dropdown-item" href="#">Products</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">Reports</a></li>
-            <li><a class="dropdown-item" href="#">Analytics</a></li>
-          </ul>
-        </div>
-  
+        <div></div>
         <div class="d-flex align-items-center">
           <div class="pr-3">
             <button class="btn btn-outline-primary rounded-pill px-3" type="button">Compose</button>
@@ -81,14 +68,14 @@
   
           <div class="flex-shrink-0 dropdown">
             <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+              <img src="/static/icons/avatar.{{ .CacheTag }}.jpg" alt="mdo" width="32" height="32" class="rounded-circle">
             </a>
             <ul class="dropdown-menu text-small shadow">
-              <li><a class="dropdown-item" href="#">New project...</a></li>
               <li><a class="dropdown-item" href="#">Settings</a></li>
               <li><a class="dropdown-item" href="#">Profile</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="#">Sign out</a></li>            </ul>
+              <li><form action="/sign-out" method="post"><button class="dropdown-item">Sign out</button></form></li>
+            </ul>
           </div>
         </div>
       </div>
@@ -101,25 +88,25 @@
         <div class="d-flex flex-column flex-shrink-0 bg-body-tertiary" style="width: 5rem;">
           <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
             <li class="nav-item">
-              <a href="/inbox" data-turbo-frame="main" data-turbo-action="replace" class='nav-link {{if eq .Fn "inbox" }}active{{end}} py-3 border-bottom rounded-0' aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Inbox" data-bs-original-title="Inbox">
+              <a href="/inbox" class='nav-link {{if eq .Fn "inbox" }}active{{end}} py-3 border-bottom rounded-0' aria-current="page" data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Inbox" data-bs-original-title="Inbox">
                 <img src="/static/icons/inbox.{{ .CacheTag }}.svg" alt="inbox" width="24" height="24">
                 <small>Inbox</small>
               </a>
             </li>
             <li>
-              <a href="/starred" data-turbo-frame="main" data-turbo-action="replace" class='nav-link {{if eq .Fn "starred" }}active{{end}} py-3 border-bottom rounded-0' data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Starred" data-bs-original-title="Starred">
+              <a href="/starred" class='nav-link {{if eq .Fn "starred" }}active{{end}} py-3 border-bottom rounded-0' data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Starred" data-bs-original-title="Starred">
                 <img src="/static/icons/star.{{ .CacheTag }}.svg" alt="starred" width="24" height="24">
                 <small>Starred</small>
               </a>
             </li>
             <li>
-              <a href="/sent" data-turbo-frame="main" data-turbo-action="replace" class='nav-link {{if eq .Fn "sent" }}active{{end}} py-3 border-bottom rounded-0' data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Sent" data-bs-original-title="Sent">
+              <a href="/sent" class='nav-link {{if eq .Fn "sent" }}active{{end}} py-3 border-bottom rounded-0' data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Sent" data-bs-original-title="Sent">
                 <img src="/static/icons/cursor.{{ .CacheTag }}.svg" alt="sent" width="24" height="24">
                 <small>Sent</small>
               </a>
             </li>
             <li>
-              <a href="/trash" data-turbo-frame="main" data-turbo-action="replace" class='nav-link {{if eq .Fn "trash" }}active{{end}} py-3 border-bottom rounded-0' data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Trash" data-bs-original-title="Trash">
+              <a href="/trash" class='nav-link {{if eq .Fn "trash" }}active{{end}} py-3 border-bottom rounded-0' data-bs-toggle="tooltip" data-bs-placement="right" aria-label="Trash" data-bs-original-title="Trash">
                 <img src="/static/icons/trash3.{{ .CacheTag }}.svg" alt="trash" width="24" height="24">
                 <small>Trash</small>
               </a>
@@ -142,5 +129,25 @@
       </div>
     </div>
     
+
+    <script>
+      (() => {
+    'use strict'
+     
+    // custom turbo action
+    addEventListener("turbo:before-stream-render", ((event) => {
+      const fallbackToDefaultActions = event.detail.render
+      event.detail.render = function (streamElement) {
+        if (streamElement.action == "redirect") {
+          window.location.href = streamElement.target;
+        } else {
+          fallbackToDefaultActions(streamElement)
+        }
+      }
+    }))
+    
+    })()
+    
+    </script>
   </body>
 </html>

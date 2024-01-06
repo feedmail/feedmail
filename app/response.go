@@ -132,6 +132,20 @@ func (c *Config) RespondErr(w http.ResponseWriter, r *http.Request, handler stri
 	return nil
 }
 
+func (c *Config) Redirect(w http.ResponseWriter, r *http.Request, message string) error {
+	t := c.InitTemplate(Tmpl{Handler: "shared", Fn: "_redirect", Data: message, Partial: true}, r)
+
+	w.Header().Set("Content-Type", "text/vnd.turbo-stream.html")
+	w.WriteHeader(200)
+
+	err := c.Respond(w, r, t)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *Config) RespondData(w http.ResponseWriter, r *http.Request, handler string, data any) error {
 	t := c.InitTemplate(Tmpl{Handler: handler, Fn: "_error", Data: data}, r)
 

@@ -60,8 +60,7 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 	})
 	// https://www.w3.org/TR/fetch-metadata/
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
-	return nil
+	return c.Redirect(w, r, "/")
 }
 
 func Delete(c *app.Config, w http.ResponseWriter, r *http.Request) error {
@@ -79,6 +78,5 @@ func Delete(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		MaxAge: -1,
 	})
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
-	return nil
+	return c.Redirect(w, r, "/")
 }
