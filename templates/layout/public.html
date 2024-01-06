@@ -10,15 +10,12 @@
     <script type="importmap">
       {
         "imports": {
-          "@hotwired/turbo": "/static/js/turbo.es2017-umd.{{ .CacheTag }}.js",
-          "bootstrap": "/static/js/bootstrap.{{ .CacheTag }}.js",
-          "@popperjs/core": "/static/js/popper.{{ .CacheTag }}.js"
+          "@hotwired/turbo": "/static/js/turbo.es2017-umd.{{ .CacheTag }}.js"
         }
       }
     </script>
     <script type="module">
       import hotwiredTurbo from '@hotwired/turbo';
-      import * as bootstrap from 'bootstrap';
     </script>
   </head>
     {{ template "body" . }}
