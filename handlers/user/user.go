@@ -100,7 +100,7 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 	}
 	pubKeyPem := pem.EncodeToMemory(
 		&pem.Block{
-			Type:  "RSA PUBLIC KEY",
+			Type:  "PUBLIC KEY",
 			Bytes: pubKeyBytes,
 		},
 	)

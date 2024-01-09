@@ -24,7 +24,7 @@ func Webfinger(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		return app.RespondStatus(w, http.StatusNotFound)
 	}
 
-	handle := strings.TrimPrefix(resource, "acct:")
+	handle := strings.TrimPrefix(strings.TrimSpace(resource), "acct:")
 	username := strings.TrimSuffix(handle, "@"+*c.Domain)
 
 	var user M.User
@@ -65,7 +65,7 @@ func Nodeinfo(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		Version: "2.0",
 		Software: AP.Software{
 			Name:    "feedmail",
-			Version: "0.0.1",
+			Version: *c.Version,
 		},
 		Protocols: []string{"activitypub"},
 		Services: AP.Services{

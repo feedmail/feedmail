@@ -22,8 +22,6 @@ func Actor(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		"application/activity+json",
 	}
 
-	log.Printf(r.Header.Get("accept"))
-
 	if !slices.Contains(headers, r.Header.Get("accept")) {
 		return user.Profile(c, w, r) // redirect to user profile
 	}

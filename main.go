@@ -18,6 +18,7 @@ func main() {
 	app.CsrfSecret = flag.String("csrf-secret", "xyz", "csrf-secret")
 	app.CacheTag = flag.String("cache-tag", "123", "cache-tag")
 	app.Domain = flag.String("domain", "localhost", "domain")
+	app.Version = flag.String("version", "0.0.1-dev", "version")
 	flag.Parse()
 
 	// Database
@@ -33,7 +34,6 @@ func main() {
 	app.Router = http.NewServeMux()
 	fs := app.CacheHandler(http.FileServer(http.Dir("./static")))
 	app.Router.Handle("/static/", http.StripPrefix("/static/", fs))
-
 	InitRoutes(app)
 
 	// Server

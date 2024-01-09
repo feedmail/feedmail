@@ -13,4 +13,5 @@ type Config struct {
 	CacheTag   *string
 	DB         DB
 	Domain     *string
+	Version    *string
 }

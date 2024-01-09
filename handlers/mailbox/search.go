@@ -6,7 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 
 	AP "github.com/feedmail/feedmail/activitypub"
 	"github.com/feedmail/feedmail/app"
@@ -21,6 +23,11 @@ type Actor struct {
 func Search(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 	log.Printf("mailbox#search %v", r.URL)
 
+	currentUser, err := c.DB.GetCurrentUser(r)
+	if err != nil {
+		return c.RespondErr(w, r, "shared", "you are not already logged in")
+	}
+
 	r.ParseForm()
 
 	term := r.FormValue("term")
@@ -28,10 +35,8 @@ func Search(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		return c.RespondErr(w, r, "shared", "username can't be blank")
 	}
 
-	//var data string
-
 	handle, _ := strings.CutPrefix(term, "@")
-	split := strings.Split(handle, "@")
+	split := strings.Split(strings.TrimSpace(handle), "@")
 	if len(split) != 2 {
 		log.Printf("wrong mail format")
 	}
@@ -61,22 +66,41 @@ func Search(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	log.Print(actorHref)
-
 	client := http.Client{}
 	reqActor, err := http.NewRequest("GET", actorHref, nil)
 	if err != nil {
 		log.Printf("can't create new request")
 	}
 
-	reqActor.Header = http.Header{
-		"Accept": {"application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""},
-		//"Authorization": {"Bearer Token"},
+	date := time.Now().UTC().Format(http.TimeFormat)
+	headers := []AP.Pair{
+		{K: "date", V: date},
+		{K: "host", V: remoteDomain},
 	}
+
+	u, err := url.Parse(actorHref)
+	if err != nil {
+		log.Printf("can't parse user url")
+	}
+
+	keyId := fmt.Sprintf("https://%s/users/%s#main-key", *c.Domain, currentUser.Username)
+	signature, err := AP.Sign(currentUser.Account.PrivateKey, keyId, "get "+u.Path, headers)
+	if err != nil {
+		log.Print("SignRequest", err)
+	}
+
+	reqActor.Header = http.Header{
+		"Host":      []string{remoteDomain},
+		"Date":      []string{date},
+		"Accept":    {"application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""},
+		"Signature": []string{signature},
+		//"Digest":    []string{digest},
+	}
+	log.Print(reqActor.Header)
 
 	respActor, err := client.Do(reqActor)
 	if err != nil {
-		log.Printf("can't query url")
+		log.Print("can't query url", err)
 	}
 
 	defer respActor.Body.Close()
@@ -85,8 +109,9 @@ func Search(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		log.Printf("can't read body")
 	}
 
-	remoteActor := struct{ AP.Actor }{}
+	log.Printf(">>> %s", bodyActor)
 
+	remoteActor := struct{ AP.Actor }{}
 	err = json.Unmarshal(bodyActor, &remoteActor)
 	if err != nil {
 		log.Printf("can't parse body json")
