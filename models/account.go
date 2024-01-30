@@ -8,11 +8,11 @@ import (
 )
 
 type Account struct {
-	ID             uuid.UUID `gorm:"type:uuid;primaryKey;"`
+	ID             uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	DeletedAt      gorm.DeletedAt
-	UserID         uuid.UUID
+	UserID         uuid.UUID `gorm:"type:uuid;default:null;"`
 	Username       string
 	Domain         string
 	PublicKey      string
@@ -23,6 +23,9 @@ type Account struct {
 	InboxUrl       string
 	OutboxUrl      string
 	FollowersUrl   string
+	FollowingUrl   string
 	SharedInboxUrl string
 	ActorType      string
+	IconUrl        string
+	Summary        string
 }

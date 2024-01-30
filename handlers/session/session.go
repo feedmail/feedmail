@@ -11,7 +11,6 @@ import (
 	"github.com/feedmail/feedmail/app"
 	M "github.com/feedmail/feedmail/models"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -36,23 +35,26 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		return c.RespondErr(w, r, "shared", "email or password are wrong")
 	}
 
-	sessionID := uuid.New()
-	c.DB.Client.Create(&M.Session{
-		ID:           sessionID,
+	session := &M.Session{
 		UserID:       user.ID,
 		LastActivity: time.Now(),
-	})
+	}
+
+	createResult := c.DB.Client.Create(&session)
+	if createResult.Error != nil {
+		return c.RespondErr(w, r, "shared", "internal error")
+	}
 
 	expiration := time.Now().Add(time.Minute * 300)
 
-	csrfToken, err := c.CreateCsrfToken(sessionID.String())
+	csrfToken, err := c.CreateCsrfToken(session.ID.String())
 	if err != nil {
 		return c.RespondErr(w, r, "shared", "internal error")
 	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",
-		Value:    fmt.Sprintf("%s.%s", sessionID, csrfToken),
+		Value:    fmt.Sprintf("%s.%s", session.ID.String(), csrfToken),
 		Expires:  expiration,
 		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,

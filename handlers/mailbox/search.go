@@ -12,6 +12,7 @@ import (
 
 	AP "github.com/feedmail/feedmail/activitypub"
 	"github.com/feedmail/feedmail/app"
+	M "github.com/feedmail/feedmail/models"
 )
 
 type Actor struct {
@@ -34,6 +35,8 @@ func Search(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 	if len(term) == 0 {
 		return c.RespondErr(w, r, "shared", "username can't be blank")
 	}
+
+	// TODO: search for local users
 
 	handle, _ := strings.CutPrefix(term, "@")
 	split := strings.Split(strings.TrimSpace(handle), "@")
@@ -106,43 +109,61 @@ func Search(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 	defer respActor.Body.Close()
 	bodyActor, err := io.ReadAll(respActor.Body)
 	if err != nil {
-		log.Printf("can't read body")
+		log.Print("can't read body", err)
 	}
 
 	log.Printf(">>> %s", bodyActor)
 
-	remoteActor := struct{ AP.Actor }{}
-	err = json.Unmarshal(bodyActor, &remoteActor)
+	remoteActor, err := AP.ParseActor(string(bodyActor))
 	if err != nil {
-		log.Printf("can't parse body json")
+		log.Print("can't parse body json", err)
 	}
 
-	// id := fmt.Sprintf("https://%s/users/%s", remoteDomain, handle)
-	// accountID := uuid.New()
-	// account := &M.Account{
-	// 	ID:             accountID,
-	// 	CreatedAt:      time.Now(),
-	// 	UpdatedAt:      time.Now(),
-	// 	Username:       remoteActor.PreferredUsername,
-	// 	Domain:         remoteDomain,
-	// 	PublicKey:      remoteActor.PublicKey.PublicKeyPem,
-	// 	DisplayName:    remoteActor.Name,
-	// 	Uri:            "",
-	// 	Url:            remoteActor.Url,
-	// 	InboxUrl:       path.Join(id, "inbox"),
-	// 	OutboxUrl:      path.Join(id, "outbox"),
-	// 	FollowersUrl:   path.Join(id, "followers"),
-	// 	SharedInboxUrl: fmt.Sprintf("https://%s/inbox", remoteDomain),
-	// 	ActorType:      "Person",
-	// }
-	// accountResult := c.DB.Client.Create(&account)
-	// if accountResult.Error != nil {
-	// 	log.Print(accountResult.Error)
-	// 	//rollback user creation
-	// 	return c.RespondErr(w, r, "shared", "can not create session")
-	// }
+	uri := fmt.Sprintf("https://%s/users/%s", remoteDomain, handle)
 
-	//log.Print(fmt.Sprintf("%s", actor["id"]))
+	log.Print(uri)
+
+	log.Printf(">>> %s", remoteActor)
+
+	var account *M.Account
+	getResult := c.DB.Client.Where("uri = ?", uri).Find(&account)
+	if getResult.Error != nil || getResult.RowsAffected == 0 {
+		// cache account
+		account = &M.Account{
+			CreatedAt:      time.Now(),
+			UpdatedAt:      time.Now(),
+			Username:       remoteActor.PreferredUsername,
+			Domain:         remoteDomain,
+			PublicKey:      remoteActor.PublicKey.PublicKeyPem,
+			DisplayName:    remoteActor.Name,
+			Uri:            remoteActor.Id,
+			Url:            remoteActor.Url,
+			InboxUrl:       remoteActor.Inbox,
+			OutboxUrl:      remoteActor.Outbox,
+			FollowersUrl:   remoteActor.Followers,
+			FollowingUrl:   remoteActor.Following,
+			IconUrl:        remoteActor.Icon.Url,
+			SharedInboxUrl: remoteActor.Endpoints.SharedInbox,
+			Summary:        remoteActor.Summary,
+			ActorType:      "Person",
+		}
+		accountResult := c.DB.Client.Create(&account)
+		if accountResult.Error != nil {
+			log.Print(accountResult.Error)
+			return c.RespondErr(w, r, "shared", "can not create session")
+		}
+	} else {
+		// update cached account
+		account.PublicKey = remoteActor.PublicKey.PublicKeyPem
+		account.DisplayName = remoteActor.Name
+		account.Username = remoteActor.PreferredUsername
+		account.Url = remoteActor.Url
+		account.UpdatedAt = time.Now()
+		updateResult := c.DB.Client.Save(&account)
+		if updateResult.Error != nil {
+			log.Printf("can't update cached remote actor")
+		}
+	}
 
 	return c.Respond(w, r, app.Tmpl{Handler: "mailbox", Fn: "search", Action: "replace", Target: "main", Data: remoteActor})
 }

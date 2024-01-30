@@ -15,7 +15,6 @@ import (
 	"github.com/feedmail/feedmail/app"
 	M "github.com/feedmail/feedmail/models"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -63,10 +62,8 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		return c.RespondErr(w, r, "shared", "email is already taken")
 	}
 
-	userID := uuid.New()
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	user := &M.User{
-		ID:        userID,
 		Username:  username,
 		Email:     strings.ToLower(email),
 		Password:  hashedPassword,
@@ -106,9 +103,7 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 	)
 
 	id := fmt.Sprintf("https://%s/users/%s", *c.Domain, username)
-	accountID := uuid.New()
 	account := &M.Account{
-		ID:             accountID,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 		UserID:         user.ID,
@@ -132,9 +127,7 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 		return c.RespondErr(w, r, "shared", "can not create session")
 	}
 
-	sessionID := uuid.New()
 	session := &M.Session{
-		ID:           sessionID,
 		UserID:       user.ID,
 		LastActivity: time.Now(),
 	}
@@ -147,14 +140,14 @@ func Create(c *app.Config, w http.ResponseWriter, r *http.Request) error {
 
 	expiration := time.Now().Add(time.Minute * 30)
 
-	csrfToken, err := c.CreateCsrfToken(sessionID.String())
+	csrfToken, err := c.CreateCsrfToken(session.ID.String())
 	if err != nil {
 		return c.RespondErr(w, r, "shared", "internal error")
 	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session",
-		Value:    fmt.Sprintf("%s.%s", sessionID, csrfToken),
+		Value:    fmt.Sprintf("%s.%s", session.ID.String(), csrfToken),
 		Expires:  expiration,
 		HttpOnly: true,
 	})
